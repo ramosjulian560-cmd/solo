@@ -1,24 +1,20 @@
-// headers/game_engine/game_logic/boardgame/chess/pieces/bishop.hpp
+// headers/game_engine/game_logic/boardgame/Chess/Pieces/Pawn.hpp
 #pragma once
-
 
 #include "../chesspiece.hpp"
 
-
-class Bishop final : public ChessPiece
+class Pawn final : public ChessPiece
 {
 public:
-    explicit Bishop(ChessColor color) noexcept
-        : ChessPiece(color, ChessPieceType::Bishop)
+    explicit Pawn(ChessColor color) noexcept
+        : ChessPiece(color, ChessPieceType::Pawn)
     {}
-
 
     std::vector<ChessMove> pseudoLegalMoves(
         const std::vector<std::vector<BoardPosition<std::shared_ptr<ChessPiece>>>>& board,
         int from_row,
         int from_col
     ) const override;
-
 
 private:
     static bool inBounds(int r, int c) noexcept

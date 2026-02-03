@@ -2,6 +2,9 @@
 #pragma once
 
 
+class PlotFour; // forward declaration so "friend class PlotFour;" is always valid
+
+
 template <typename BoardPiece>
 struct BoardPosition
 {

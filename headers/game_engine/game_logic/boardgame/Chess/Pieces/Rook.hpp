@@ -1,4 +1,4 @@
-// headers/game_engine/game_logic/boardgame/chess/pieces/rook.hpp
+// headers/game_engine/game_logic/boardgame/Chess/Pieces/Rook.hpp
 #pragma once
 
 #include "../chesspiece.hpp"

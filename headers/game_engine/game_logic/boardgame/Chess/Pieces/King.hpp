@@ -1,13 +1,13 @@
-// headers/game_engine/game_logic/boardgame/chess/pieces/knight.hpp
+// headers/game_engine/game_logic/boardgame/Chess/Pieces/King.hpp
 #pragma once
 
 #include "../chesspiece.hpp"
 
-class Knight final : public ChessPiece
+class King final : public ChessPiece
 {
 public:
-    explicit Knight(ChessColor color) noexcept
-        : ChessPiece(color, ChessPieceType::Knight)
+    explicit King(ChessColor color) noexcept
+        : ChessPiece(color, ChessPieceType::King)
     {}
 
     std::vector<ChessMove> pseudoLegalMoves(
