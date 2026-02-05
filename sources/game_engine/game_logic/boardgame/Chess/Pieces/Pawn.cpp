@@ -2,52 +2,75 @@
 
 #include "game_engine/game_logic/boardgame/Chess/Pieces/Pawn.hpp"
 
-#include <memory>
 #include <vector>
+
+namespace
+{
+    constexpr int kN = 8;
+
+    bool inBounds(int r, int c) noexcept
+    {
+        return r >= 0 && r < kN && c >= 0 && c < kN;
+    }
+} // namespace
+
+Pawn::Pawn(ChessColor color) : ChessPiece(color, ChessPieceType::Pawn) {}
 
 std::vector<ChessMove> Pawn::pseudoLegalMoves(
     const std::vector<std::vector<BoardPosition<std::shared_ptr<ChessPiece>>>>& board,
     int from_row,
-    int from_col
-) const
+    int from_col) const
 {
     std::vector<ChessMove> moves;
 
-    auto inBounds = [](int r, int c) noexcept {
-        return r >= 0 && r < 8 && c >= 0 && c < 8;
-    };
+    if (!inBounds(from_row, from_col)) return moves;
 
-    const bool is_white = (color() == ChessColor::White);
-    const int dir = is_white ? -1 : +1;
-    const int start_row = is_white ? 6 : 1;
+    const int dir = (color() == ChessColor::White) ? -1 : +1;
+    const int start_row = (color() == ChessColor::White) ? 6 : 1;
 
     const int one_r = from_row + dir;
 
-    // Forward 1
+    // Forward 1 (must be empty)
     if (inBounds(one_r, from_col) && !board[one_r][from_col].getBoardPiece())
     {
-        moves.push_back(ChessMove{from_row, from_col, one_r, from_col, nullptr});
+        ChessMove m{};
+        m.from_row = from_row;
+        m.from_col = from_col;
+        m.to_row = one_r;
+        m.to_col = from_col;
+        moves.push_back(m);
 
-        // Forward 2 from starting rank (only if forward 1 is empty too)
+        // Forward 2 from start (both squares must be empty)
         const int two_r = from_row + 2 * dir;
-        if (from_row == start_row && inBounds(two_r, from_col) &&
+        if (from_row == start_row &&
+            inBounds(two_r, from_col) &&
             !board[two_r][from_col].getBoardPiece())
         {
-            moves.push_back(ChessMove{from_row, from_col, two_r, from_col, nullptr});
+            ChessMove m2{};
+            m2.from_row = from_row;
+            m2.from_col = from_col;
+            m2.to_row = two_r;
+            m2.to_col = from_col;
+            moves.push_back(m2);
         }
     }
 
     // Diagonal captures
     for (int dc : {-1, +1})
     {
-        const int r = from_row + dir;
-        const int c = from_col + dc;
-        if (!inBounds(r, c)) continue;
+        const int cap_r = from_row + dir;
+        const int cap_c = from_col + dc;
+        if (!inBounds(cap_r, cap_c)) continue;
 
-        const auto target = board[r][c].getBoardPiece();
-        if (isOpponent(target))
+        const auto target = board[cap_r][cap_c].getBoardPiece();
+        if (target && isOpponent(target))
         {
-            moves.push_back(ChessMove{from_row, from_col, r, c, nullptr});
+            ChessMove m{};
+            m.from_row = from_row;
+            m.from_col = from_col;
+            m.to_row = cap_r;
+            m.to_col = cap_c;
+            moves.push_back(m);
         }
     }
 
