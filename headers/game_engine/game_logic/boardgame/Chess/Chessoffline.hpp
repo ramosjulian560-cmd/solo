@@ -24,7 +24,7 @@ public:
         : difficulty_(difficulty)
     {}
 
-    ~ChessOffline() override = default;
+    ~ChessOffline() = default;
 
     ChessOffline(const ChessOffline&) = delete;
     ChessOffline& operator=(const ChessOffline&) = delete;

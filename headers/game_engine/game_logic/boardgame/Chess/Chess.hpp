@@ -62,7 +62,7 @@ public:
         setBoard();
     }
 
-    ~Chess() override = default;
+    ~Chess() = default;
 
     Chess(const Chess&) = delete;
     Chess& operator=(const Chess&) = delete;
@@ -79,14 +79,7 @@ public:
 
     int halfmoveClock() const noexcept { return halfmove_clock_; }
 
-    // -------------------- Legal move API --------------------
-    std::vector<ChessMove> legalMovesFrom(int from_row, int from_col, ChessColor side) const;
-    std::vector<ChessMove> allLegalMoves(ChessColor side) const;
-
-    bool isSquareAttacked(int row, int col, ChessColor by_side) const;
-    bool isInCheck(ChessColor side) const;
-
-    bool isMoveLegal(const ChessMove& move, ChessColor side) const;
+    void resetBoard();
 
     // -------------------- Move application --------------------
     bool applyMove(const ChessMove& move);
@@ -97,6 +90,7 @@ public:
 
     DrawInfo getDrawInfo() const;
     GameResult getResult() const;
+    int legalMoveCount(ChessColor side) const;
 
     // -------------------- UI glue (UCI) --------------------
     std::optional<ChessMove> parseMoveUci(const std::string& uci, ChessColor side) const;
@@ -124,6 +118,14 @@ private:
         en_passant_row_ = row;
         en_passant_col_ = col;
     }
+
+    // Internal legal move helpers
+    std::vector<ChessMove> legalMovesFrom(int from_row, int from_col, ChessColor side) const;
+    std::vector<ChessMove> allLegalMoves(ChessColor side) const;
+
+    bool isSquareAttacked(int row, int col, ChessColor by_side) const;
+    bool isInCheck(ChessColor side) const;
+    bool isMoveLegal(const ChessMove& move, ChessColor side) const;
 
     // Engine-level special move generation
     std::vector<ChessMove> addCastlingMovesIfAny(int king_row, int king_col, ChessColor side) const;

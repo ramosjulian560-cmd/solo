@@ -41,36 +41,3 @@ public:
         return board; // returns a copy (OK for now; keep as-is if engine expects it)
     }
 };
-
-
-// headers/game_engine/game_logic/boardgame/chess/chess.hpp
-#pragma once
-
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "../Boardgame.hpp"
-
-// IMPORTANT: Keep this name/casing consistent with your actual chesspiece.hpp file.
-class ChessPiece;
-
-class Chess : public Boardgame<std::shared_ptr<ChessPiece>>
-{
-public:
-    Chess()
-        : Boardgame<std::shared_ptr<ChessPiece>>(
-              "Chess",
-              "E",
-              "Boardgame",
-              "Classic chess with full rules.",
-              std::vector<std::string>{"Board", "Strategy"},
-              0
-          )
-    {}
-
-    ~Chess() override = default;
-
-protected:
-    void setBoard() override;
-};
