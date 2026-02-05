@@ -2,7 +2,7 @@
 #pragma once
 
 
-#include "../chesspiece.hpp"
+#include "../ChessPiece.hpp"
 
 
 class Bishop final : public ChessPiece

@@ -10,7 +10,7 @@
 #include "game_engine/game_logic/boardgame/Chess/Pieces/Queen.hpp"
 #include "game_engine/game_logic/boardgame/Chess/Pieces/Rook.hpp"
 
-#include <cctype>   // FIX #1
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <optional>
@@ -212,6 +212,11 @@ void Chess::setBoard()
 
     position_hash_ = computeHash(board, side_to_move_, castling_rights_, has_en_passant_, en_passant_row_, en_passant_col_);
     position_counts_[position_hash_] = 1;
+}
+
+void Chess::resetBoard()
+{
+    setBoard();
 }
 
 // -------------------- Attacks / check --------------------
@@ -492,6 +497,11 @@ std::vector<ChessMove> Chess::allLegalMoves(ChessColor side) const
         }
     }
     return out;
+}
+
+int Chess::legalMoveCount(ChessColor side) const
+{
+    return static_cast<int>(allLegalMoves(side).size());
 }
 
 bool Chess::isMoveLegal(const ChessMove& move, ChessColor side) const
@@ -844,7 +854,6 @@ std::optional<ChessMove> Chess::parseMoveUci(const std::string& uci, ChessColor 
     ChessPromotion promo = ChessPromotion::None;
     if (uci.size() >= 5)
     {
-        // FIX #2 + #3 (safe tolower + actually assign promo)
         const unsigned char ch = static_cast<unsigned char>(uci[4]);
         promo = promoFromChar(static_cast<char>(std::tolower(ch)));
     }
