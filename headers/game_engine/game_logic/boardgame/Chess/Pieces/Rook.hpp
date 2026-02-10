@@ -1,7 +1,7 @@
 // headers/game_engine/game_logic/boardgame/Chess/Pieces/Rook.hpp
 #pragma once
 
-#include "../chesspiece.hpp"
+#include "../ChessPiece.hpp"
 
 class Rook final : public ChessPiece
 {
