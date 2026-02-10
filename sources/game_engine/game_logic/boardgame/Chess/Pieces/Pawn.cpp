@@ -14,7 +14,6 @@ namespace
     }
 } // namespace
 
-Pawn::Pawn(ChessColor color) : ChessPiece(color, ChessPieceType::Pawn) {}
 
 std::vector<ChessMove> Pawn::pseudoLegalMoves(
     const std::vector<std::vector<BoardPosition<std::shared_ptr<ChessPiece>>>>& board,
@@ -24,6 +23,9 @@ std::vector<ChessMove> Pawn::pseudoLegalMoves(
     std::vector<ChessMove> moves;
 
     if (!inBounds(from_row, from_col)) return moves;
+
+    const auto self = board[from_row][from_col].getBoardPiece();
+    if (!self || self->color() != color()) return moves;
 
     const int dir = (color() == ChessColor::White) ? -1 : +1;
     const int start_row = (color() == ChessColor::White) ? 6 : 1;

@@ -13,9 +13,15 @@ std::vector<ChessMove> Queen::pseudoLegalMoves(
 {
     std::vector<ChessMove> moves;
 
+    constexpr int kN = 8;
     auto inBounds = [](int r, int c) noexcept {
-        return r >= 0 && r < 8 && c >= 0 && c < 8;
+        return r >= 0 && r < kN && c >= 0 && c < kN;
     };
+
+    if (!inBounds(from_row, from_col)) return moves;
+
+    const auto self = board[from_row][from_col].getBoardPiece();
+    if (!self || self->color() != color()) return moves;
 
     static constexpr int kDirs[8][2] = {
         {+1,  0}, {-1,  0}, { 0, +1}, { 0, -1}, // rook-like

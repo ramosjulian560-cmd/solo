@@ -1,77 +1,89 @@
 #include <iostream>
-#include <limits> // For clearing input buffer if needed
-#include "game_engine/game_logic/boardgame/plot_four/PlotFourOffline.hpp"
+#include <string>
+#include <vector>
 
-void printBoard(const PlotFourOffline& game)
+#include "game_engine/ai/StockfishEngine.hpp"
+#include "game_engine/game_logic/boardgame/Chess/Chess.hpp"
+
+namespace
 {
-    auto board = game.getBoard();
-    std::cout << "\n 0 1 2 3 4 5 6\n"; // Column guides
-    std::cout << "===============\n";
-    
-    for (const auto& row : board)
-    {
-        std::cout << "|"; 
-        for (const auto& spot : row)
-        {
-            PlotFourPiece p = spot.getBoardPiece();
-            char c = ' '; // Empty space looks cleaner
-            if (p == PlotFourPiece::RED) c = 'R';
-            else if (p == PlotFourPiece::YELLOW) c = 'Y';
-            
-            std::cout << c << "|";
-        }
-        std::cout << "\n";
-    }
-    std::cout << "===============\n";
+const char* toString(ChessColor side)
+{
+    return (side == ChessColor::White) ? "White" : "Black";
 }
+} // namespace
 
 int main()
 {
-    PlotFourOffline game;
-    int col;
-    
-    // We track this locally for display, knowing Red always starts.
-    // The internal game logic manages the actual rules.
-    std::string current_player = "RED"; 
+    Chess game;
+    game.resetBoard();
 
-    while (true)
+    StockfishEngine engine;
+    if (!engine.start("stockfish"))
     {
-        printBoard(game);
-        
-        std::cout << "\n[" << current_player << "'s Turn]\n";
-        std::cout << "Enter Column (0-6): ";
-        
-        // Basic Input Validation
-        if (!(std::cin >> col)) {
-            std::cout << "Invalid input. Please enter a number.\n";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return 1;
+    }
+
+    std::vector<std::string> moves_uci;
+    constexpr int kDepth = 12;
+
+    std::cout << "Minimal Chess + Stockfish CLI\n";
+    std::cout << "Enter UCI moves like e2e4. Type 'quit' to exit.\n\n";
+
+    while (game.getResult() == Chess::GameResult::Ongoing)
+    {
+        if (game.sideToMove() == ChessColor::White)
+        {
+            std::string uci;
+            std::cout << "Your move (" << toString(game.sideToMove()) << "): ";
+            if (!(std::cin >> uci))
+            {
+                engine.stop();
+                return 0;
+            }
+
+            if (uci == "quit")
+            {
+                engine.stop();
+                return 0;
+            }
+
+            const auto parsed = game.parseMoveUci(uci, game.sideToMove());
+            if (!parsed.has_value())
+            {
+                std::cout << "Invalid move: " << uci << "\n";
+                continue;
+            }
+
+            if (!game.applyMove(*parsed))
+            {
+                std::cout << "Move rejected by engine: " << uci << "\n";
+                continue;
+            }
+
+            moves_uci.push_back(uci);
             continue;
         }
 
-        // 1. Attempt Move
-        auto last_pos = game.move(col);
-
-        // 🚨 SENTINEL CHECK: Did the move fail?
-        // If row is -1, the column was full or out of bounds.
-        if (last_pos.getRow() == -1)
+        const auto ai_move = engine.bestMoveUci(moves_uci, kDepth);
+        if (!ai_move.has_value())
         {
-            std::cout << "❌ Invalid Move! Column full or out of bounds. Try again.\n";
-            // We 'continue' here so we don't switch turns or check win
-            continue; 
+            engine.stop();
+            return 0;
         }
 
-        // 2. Check Win (Only if move was valid)
-        if (game.win(last_pos) != PlotFourPiece::NONE)
+        const auto parsed_ai = game.parseMoveUci(*ai_move, game.sideToMove());
+        if (!parsed_ai.has_value() || !game.applyMove(*parsed_ai))
         {
-            printBoard(game);
-            std::cout << "\n🎉 WINNER: " << current_player << "! 🎉\n";
-            break;
+            engine.stop();
+            return 0;
         }
 
-        // 3. Switch Turn Display (Only if move was valid)
-        current_player = (current_player == "RED") ? "YELLOW" : "RED";
+        moves_uci.push_back(*ai_move);
+        std::cout << "AI played: " << *ai_move << "\n";
     }
 
+    engine.stop();
+    std::cout << "Game ended.\n";
     return 0;
 }

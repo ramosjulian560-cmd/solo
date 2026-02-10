@@ -1,7 +1,7 @@
 // headers/game_engine/game_logic/boardgame/Chess/Pieces/King.hpp
 #pragma once
 
-#include "../chesspiece.hpp"
+#include "../ChessPiece.hpp"
 
 class King final : public ChessPiece
 {
