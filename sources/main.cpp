@@ -36,6 +36,7 @@ int main()
         {
             std::string uci;
             std::cout << "Your move (" << toString(game.sideToMove()) << "): ";
+
             if (!(std::cin >> uci))
             {
                 engine.stop();
@@ -62,25 +63,26 @@ int main()
             }
 
             moves_uci.push_back(uci);
-            continue;
         }
-
-        const auto ai_move = engine.bestMoveUci(moves_uci, kDepth);
-        if (!ai_move.has_value())
+        else
         {
-            engine.stop();
-            return 0;
-        }
+            const auto ai_move = engine.bestMoveUci(moves_uci, kDepth);
+            if (!ai_move.has_value())
+            {
+                engine.stop();
+                return 0;
+            }
 
-        const auto parsed_ai = game.parseMoveUci(*ai_move, game.sideToMove());
-        if (!parsed_ai.has_value() || !game.applyMove(*parsed_ai))
-        {
-            engine.stop();
-            return 0;
-        }
+            const auto parsed_ai = game.parseMoveUci(*ai_move, game.sideToMove());
+            if (!parsed_ai.has_value() || !game.applyMove(*parsed_ai))
+            {
+                engine.stop();
+                return 0;
+            }
 
-        moves_uci.push_back(*ai_move);
-        std::cout << "AI played: " << *ai_move << "\n";
+            moves_uci.push_back(*ai_move);
+            std::cout << "AI played: " << *ai_move << "\n";
+        }
     }
 
     engine.stop();
